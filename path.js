@@ -1,7 +1,9 @@
 /* ========================================================================= */
 /* ==== Floor ============================================================== */
-var groundPieceWidth = 1.5;
-var groundPieceHeight = 0.15;
+var floorPieceWidth = 1.5;
+var floorPieceHeight = 0.15;
+
+var cw_floorTiles = new Array();
 
 function cw_createFloor() {
   var last_tile = null;
@@ -35,9 +37,9 @@ function cw_createFloorTile(position, angle) {
 
   var coords = new Array();
   coords.push(new b2Vec2(0,0));
-  coords.push(new b2Vec2(0,-groundPieceHeight));
-  coords.push(new b2Vec2(groundPieceWidth,-groundPieceHeight));
-  coords.push(new b2Vec2(groundPieceWidth,0));
+  coords.push(new b2Vec2(0,-floorPieceHeight));
+  coords.push(new b2Vec2(floorPieceWidth,-floorPieceHeight));
+  coords.push(new b2Vec2(floorPieceWidth,0));
 
   var center = new b2Vec2(0,0);
 
@@ -62,8 +64,6 @@ function cw_rotateFloorTile(coords, center, angle) {
 
 /* ==== END Floor ========================================================== */
 /* ========================================================================= */
-
-
 function cw_drawFloor() {
   ctx.strokeStyle = "#000";
   ctx.fillStyle = "#666";
@@ -87,4 +87,23 @@ function cw_drawFloor() {
   }
   ctx.fill();
   ctx.stroke();
+}
+
+function cw_drawMiniMap() {
+  var last_tile = null;
+  var tile_position = new b2Vec2(-5,0);
+  minimapfogdistance = 0;
+  fogdistance.width = "800px";
+  minimapcanvas.width = minimapcanvas.width;
+  minimapctx.strokeStyle = "#000";
+  minimapctx.beginPath();
+  minimapctx.moveTo(0,35 * minimapscale);
+  for(var k = 0; k < cw_floorTiles.length; k++) {
+    last_tile = cw_floorTiles[k];
+    last_fixture = last_tile.GetFixtureList();
+    last_world_coords = last_tile.GetWorldPoint(last_fixture.GetShape().m_vertices[3]);
+    tile_position = last_world_coords;
+    minimapctx.lineTo((tile_position.x + 5) * minimapscale, (-tile_position.y + 35) * minimapscale);
+  }
+  minimapctx.stroke();
 }

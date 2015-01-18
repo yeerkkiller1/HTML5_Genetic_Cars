@@ -60,7 +60,6 @@ var zoom = 70;
 var mutable_floor = false;
 
 var maxFloorTiles = 200;
-var cw_floorTiles = new Array();
 var last_drawn_tile = 0;
 
 var chassisMaxAxis = 1.1;
@@ -742,29 +741,8 @@ function cw_drawCircle(body, center, radius, angle, color) {
   ctx.stroke();
 }
 
-function cw_drawMiniMap() {
-  var last_tile = null;
-  var tile_position = new b2Vec2(-5,0);
-  minimapfogdistance = 0;
-  fogdistance.width = "800px";
-  minimapcanvas.width = minimapcanvas.width;
-  minimapctx.strokeStyle = "#000";
-  minimapctx.beginPath();
-  minimapctx.moveTo(0,35 * minimapscale);
-  for(var k = 0; k < cw_floorTiles.length; k++) {
-    last_tile = cw_floorTiles[k];
-    last_fixture = last_tile.GetFixtureList();
-    last_world_coords = last_tile.GetWorldPoint(last_fixture.GetShape().m_vertices[3]);
-    tile_position = last_world_coords;
-    minimapctx.lineTo((tile_position.x + 5) * minimapscale, (-tile_position.y + 35) * minimapscale);
-  }
-  minimapctx.stroke();
-}
-
 /* ==== END Drawing ======================================================== */
 /* ========================================================================= */
-
-
 function simulationStep() {
   world.Step(1/box2dfps, 20, 20)
   ghost_move_frame(ghost);
