@@ -9,9 +9,6 @@ var screenfps = 60;
 
 var debugbox = document.getElementById("debug");
 
-var canvas = document.getElementById("mainbox");
-var ctx = canvas.getContext("2d");
-
 var generationSize = ko.observable(20);
 var curGenerationSize = ko.observable(generationSize());
 var carsAlive = ko.observable(curGenerationSize());

@@ -7,6 +7,9 @@ var minimapcamera = document.getElementById("minimapcamera").style;
 minimapcamera.width = 12*minimapscale+"px";
 minimapcamera.height = 6*minimapscale+"px";
 
+var canvas = document.getElementById("mainbox");
+var ctx = canvas.getContext("2d");
+
 window.cw_drawScreen = cw_drawScreen;
 function cw_drawScreen() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -14,7 +17,7 @@ function cw_drawScreen() {
   cw_setCameraPosition();
   ctx.translate(200-(camera_x*zoom), 200+(camera_y*zoom));
   ctx.scale(zoom, -zoom);
-  cw_drawFloor();
+  cw_drawFloor(ctx);
   ghost_draw_frame(ctx, ghost);
   cw_drawCars();
   ctx.restore();

@@ -77,7 +77,7 @@ function cw_rotateFloorTile(coords, center, angle) {
 /* ==== END Floor ========================================================== */
 /* ========================================================================= */
 window.cw_drawFloor = cw_drawFloor;
-function cw_drawFloor() {
+function cw_drawFloor(ctx) {
   ctx.strokeStyle = "#000";
   ctx.fillStyle = "#666";
   ctx.lineWidth = 1/zoom;
