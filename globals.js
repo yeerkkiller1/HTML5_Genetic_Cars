@@ -1,8 +1,6 @@
 // Global Vars
 var ghost;
 
-var timeStep = 1.0 / 60.0;
-
 var doDraw = true;
 var cw_paused = false;
 
@@ -14,22 +12,19 @@ var debugbox = document.getElementById("debug");
 var canvas = document.getElementById("mainbox");
 var ctx = canvas.getContext("2d");
 
-var cameraspeed = 0.05;
-var camera_y = 0;
-var camera_x = 0;
-var camera_target = -1; // which car should we follow? -1 = leader
-var minimapcamera = document.getElementById("minimapcamera").style;
-
-var graphcanvas = document.getElementById("graphcanvas");
-var graphctx = graphcanvas.getContext("2d");
-var graphheight = 250;
-var graphwidth = 400;
-
 var minimapcanvas = document.getElementById("minimap");
 var minimapctx = minimapcanvas.getContext("2d");
 var minimapscale = 3;
 var minimapfogdistance = 0;
 var fogdistance = document.getElementById("minimapfog").style;
+
+var cameraspeed = 0.05;
+var camera_y = 0;
+var camera_x = 0;
+var camera_target = -1; // which car should we follow? -1 = leader
+var minimapcamera = document.getElementById("minimapcamera").style;
+minimapcamera.width = 12*minimapscale+"px";
+minimapcamera.height = 6*minimapscale+"px";
 
 var generationSize = ko.observable(20);
 var curGenerationSize = ko.observable(generationSize());
@@ -82,9 +77,6 @@ var distanceMeter = document.getElementById("distancemeter");
 var leaderPosition = new Object();
 leaderPosition.x = 0;
 leaderPosition.y = 0;
-
-minimapcamera.width = 12*minimapscale+"px";
-minimapcamera.height = 6*minimapscale+"px";
 
 var model = {
   gen_counter: gen_counter,
