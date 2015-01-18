@@ -100,8 +100,8 @@ window.cw_drawMiniMap = cw_drawMiniMap;
 function cw_drawMiniMap() {
   var last_tile = null;
   var tile_position = new b2Vec2(-5,0);
-  minimapfogdistance = 0;
-  fogdistance.width = "800px";
+  fogdistance = 0;
+  mipmapfogdistance.width = "800px";
   minimapcanvas.width = minimapcanvas.width;
   minimapctx.strokeStyle = "#000";
   minimapctx.beginPath();

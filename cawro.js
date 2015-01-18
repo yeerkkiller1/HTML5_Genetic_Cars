@@ -8,9 +8,9 @@ function debug(str, clear) {
 function showDistance(distance, height) {
   distanceMeter.innerHTML = "distance: "+distance+" meters<br />";
   distanceMeter.innerHTML += "height: "+height+" meters";
-  if(distance > minimapfogdistance) {
-    fogdistance.width = 800 - Math.round(distance + 15) * minimapscale + "px";
-    minimapfogdistance = distance;
+  if(distance > fogdistance) {
+    mipmapfogdistance.width = 800 - Math.round(distance + 15) * minimapscale + "px";
+    fogdistance = distance;
   }
 }
 

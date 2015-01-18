@@ -15,8 +15,8 @@ var ctx = canvas.getContext("2d");
 var minimapcanvas = document.getElementById("minimap");
 var minimapctx = minimapcanvas.getContext("2d");
 var minimapscale = 3;
-var minimapfogdistance = 0;
-var fogdistance = document.getElementById("minimapfog").style;
+var fogdistance = 0;
+var mipmapfogdistance = document.getElementById("minimapfog").style;
 
 var cameraspeed = 0.05;
 var camera_y = 0;
