@@ -52,11 +52,6 @@ var world;
 
 var zoom = 70;
 
-var mutable_floor = false;
-
-var maxFloorTiles = 200;
-var last_drawn_tile = 0;
-
 var chassisMaxAxis = 1.1;
 var chassisMinAxis = 0.1;
 var chassisMinDensity = 30;
@@ -69,8 +64,6 @@ var wheelMinDensity = 40;
 
 var swapPoint1 = 0;
 var swapPoint2 = 0;
-
-var cw_ghostReplayInterval = null;
 
 var distanceMeter = document.getElementById("distancemeter");
 
