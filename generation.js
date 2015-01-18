@@ -2,23 +2,14 @@
 /* ==== Generation ========================================================= */
 
 function cw_generationZero() {
-  var cw_carGeneration = [];
-  for(var k = 0; k < curGenerationSize(); k++) {
-    cw_carGeneration.push(cw_createRandomCar());
-  }
-  gen_counter(0);
-  cw_deadCars = 0;
-  leaderPosition = new Object();
-  leaderPosition.x = 0;
-  leaderPosition.y = 0;
-  cw_materializeGeneration(cw_carGeneration);
-  ghost = ghost_create_ghost();
+  cw_nextGeneration();
 }
 
 function cw_nextGeneration() {
+  var cars = model.cars();
+  cars.sort(function(a,b) {return b.score() - a.score();});
   plot_graphs();
 
-  var cars = model.cars();
   for(var ix = cars.length - 1; ix >= 0; ix--) {
     if(cars[ix].bad()) {
       cars.splice(ix, 1);
@@ -27,8 +18,6 @@ function cw_nextGeneration() {
 
   curGenerationSize(generationSize());
   
-  cars.sort(function(a,b) {return b.score - a.score;});
-
   var nextCarsDefs = [];
   nextCarsDefs.push.apply(
     nextCarsDefs, 
