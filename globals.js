@@ -43,7 +43,7 @@ var cw_graphTop = new Array();
 var cw_graphElite = new Array();
 var cw_graphAverage = new Array();
 
-var gen_champions = ko.observable(1).extend({numeric: 10, persist: 'gen_champions'});
+var num_champions = ko.observable(1).extend({numeric: 10, persist: 'num_champions'});
 var gen_parentality = 0.2;
 var gen_mutation = ko.observable(0.05).extend({numeric: 10, persist: 'gen_mutation'});
 var mutation_range = ko.observable(1).extend({numeric: 10, persist: 'mutation_range'});

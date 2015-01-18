@@ -33,31 +33,45 @@ function cw_nextGeneration() {
   });
 
   curGenerationSize(generationSize());
-  var newGeneration = new Array();
-  var newborn;
-  cw_getChampions();
-  cw_topScores.push({i:gen_counter(),v:cw_carScores[0].v,x:cw_carScores[0].x,y:cw_carScores[0].y,y2:cw_carScores[0].y2});
+  
+  cw_carScores.sort(function(a,b) {if(a.v > b.v) {return -1} else {return 1}});
+
   plot_graphs();
-  for(var k = 0; k < gen_champions(); k++) {
+
+  var nextCarsDefs = [];
+
+  nextCarsDefs.push.apply(
+    nextCarsDefs, 
+    cw_carScores
+      .slice(num_champions())
+      .map(function(x){
+        x.car_def.is_elite = true;
+        return x.car_def;
+      })
+  );
+
+  /*
+  for(var k = 0; k < num_champions(); k++) {
     cw_carScores[k].car_def.is_elite = true;
     cw_carScores[k].car_def.index = k;
     newGeneration.push(cw_carScores[k].car_def);
   }
-  for(k = gen_champions(); k < curGenerationSize(); k++) {
-    var parent1 = cw_getParents(badCars);
+  */
+  for(k = num_champions(); k < curGenerationSize(); k++) {
+    var parent1 = cw_getParents(model.cars().length - badCars);
     var parent2 = parent1;
     while(parent2 == parent1) {
-      parent2 = cw_getParents(badCars);
+      parent2 = cw_getParents(model.cars().length - badCars);
     }
-    newborn = cw_makeChild(cw_carScores[parent1].car_def,
+    var newborn = cw_makeChild(cw_carScores[parent1].car_def,
                            cw_carScores[parent2].car_def);
     newborn = cw_mutate(newborn);
     newborn.is_elite = false;
     newborn.index = k;
-    newGeneration.push(newborn);
+    nextCarsDefs.push(newborn);
   }
   cw_carScores = new Array();
-  cw_carGeneration = newGeneration;
+  cw_carGeneration = nextCarsDefs;
   gen_counter(gen_counter() + 1);
   cw_materializeGeneration();
   cw_deadCars = 0;
@@ -66,20 +80,10 @@ function cw_nextGeneration() {
   leaderPosition.y = 0;
 }
 
-function cw_getChampions() {
-  var ret = new Array();
-  cw_carScores.sort(function(a,b) {if(a.v > b.v) {return -1} else {return 1}});
-  for(var k = 0; k < curGenerationSize; k++) {
-    ret.push(cw_carScores[k].i);
-  }
-  return ret;
-}
-
-function cw_getParents(badCars) {
+function cw_getParents(genSize) {
     var r = Math.random();
     if (r == 0)
         return 0;
-    var genSize = curGenerationSize() - badCars;
     return Math.floor(-Math.log(r) * genSize) % genSize;
 }
 
