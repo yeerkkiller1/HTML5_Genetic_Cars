@@ -78,8 +78,6 @@ var wheelMinDensity = 40;
 
 var velocityIndex = 0;
 var deathSpeed = 0.1;
-var max_car_health = box2dfps * 10;
-var car_health = max_car_health;
 
 var motorSpeed = 20;
 
@@ -127,13 +125,14 @@ var cw_Car = function() {
   this.__constructor.apply(this, arguments);
 }
 
+cw_Car.prototype.maxHealth = box2dfps * 10;
 cw_Car.prototype.chassis = null;
 
 cw_Car.prototype.wheels = [];
 
 cw_Car.prototype.__constructor = function(car_def) {
   this.velocityIndex = 0;
-  this.health = ko.observable(max_car_health);
+  this.health = ko.observable(this.maxHealth);
   this.maxPosition = 0;
   this.maxPositiony = 0;
   this.minPositiony = 0;
@@ -141,7 +140,6 @@ cw_Car.prototype.__constructor = function(car_def) {
   this.car_def = car_def
   this.alive = true;
   this.is_elite = car_def.is_elite;
-  this.max_car_health = max_car_health;
   this.bad = ko.observable(false);
 
   this.position = ko.observable(0);
@@ -228,7 +226,7 @@ cw_Car.prototype.checkDeath = function() {
     this.minPositiony = position.y;
   }
   if(position.x > this.maxPosition + 0.02) {
-    this.health(max_car_health);
+    this.health(this.maxHealth);
     this.maxPosition = position.x;
   } else {
     if(position.x > this.maxPosition) {
