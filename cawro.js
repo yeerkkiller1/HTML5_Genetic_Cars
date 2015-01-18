@@ -142,6 +142,7 @@ cw_Car.prototype.__constructor = function(car_def) {
   this.alive = true;
   this.is_elite = car_def.is_elite;
   this.max_car_health = max_car_health;
+  this.bad = ko.observable(false);
 
   this.position = ko.observable(0);
 
@@ -177,6 +178,10 @@ cw_Car.prototype.__constructor = function(car_def) {
   
   this.replay = ghost_create_replay();
   ghost_add_replay_frame(this.replay, this);
+}
+
+cw_Car.prototype.toggleBad = function() {
+  this.bad(!this.bad());
 }
 
 cw_Car.prototype.getPosition = function() {
@@ -363,6 +368,12 @@ function cw_materializeGeneration() {
 }
 
 function cw_nextGeneration() {
+  model.cars().forEach(function(car, index) {
+    if(car.bad()) {
+      cw_carScores[index].v = -3;
+    }
+  });
+
   curGenerationSize(generationSize());
   var newGeneration = new Array();
   var newborn;
