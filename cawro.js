@@ -368,9 +368,11 @@ function cw_materializeGeneration() {
 }
 
 function cw_nextGeneration() {
+  var badCars = 0;
   model.cars().forEach(function(car, index) {
     if(car.bad()) {
       cw_carScores[index].v = -3;
+      badCars++;
     }
   });
 
@@ -386,10 +388,10 @@ function cw_nextGeneration() {
     newGeneration.push(cw_carScores[k].car_def);
   }
   for(k = gen_champions(); k < curGenerationSize(); k++) {
-    var parent1 = cw_getParents();
+    var parent1 = cw_getParents(badCars);
     var parent2 = parent1;
     while(parent2 == parent1) {
-      parent2 = cw_getParents();
+      parent2 = cw_getParents(badCars);
     }
     newborn = cw_makeChild(cw_carScores[parent1].car_def,
                            cw_carScores[parent2].car_def);
@@ -417,11 +419,12 @@ function cw_getChampions() {
   return ret;
 }
 
-function cw_getParents() {
+function cw_getParents(badCars) {
     var r = Math.random();
     if (r == 0)
         return 0;
-    return Math.floor(-Math.log(r) * curGenerationSize()) % curGenerationSize();
+    var genSize = curGenerationSize() - badCars;
+    return Math.floor(-Math.log(r) * genSize) % genSize;
 }
 
 function cw_makeChild(car_def1, car_def2) {
