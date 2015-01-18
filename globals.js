@@ -14,8 +14,6 @@ var curGenerationSize = ko.observable(generationSize());
 var carsAlive = ko.observable(curGenerationSize());
 
 var cw_carArray = ko.observableArray();
-var cw_carGeneration = new Array();
-var cw_carScores = new Array();
 var cw_topScores = new Array();
 var cw_graphTop = new Array();
 var cw_graphElite = new Array();

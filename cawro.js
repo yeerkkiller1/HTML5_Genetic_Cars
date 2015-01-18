@@ -27,6 +27,11 @@ cw_Car.prototype.__constructor = function(car_def) {
   this.is_elite = car_def.is_elite;
   this.bad = ko.observable(false);
 
+  //These ar eonly set after the car dies
+  this.score = ko.observable();
+  this.avgspeed = ko.observable();
+
+
   this.position = ko.observable(0);
 
   this.chassis = cw_createChassis(car_def.vertex_list, car_def.chassis_density);
@@ -87,7 +92,10 @@ cw_Car.prototype.kill = function() {
   var position = this.maxPosition;
   var score = position + avgspeed;
   ghost_compare_to_replay(this.replay, ghost, score);
-  cw_carScores.push({ car_def:this.car_def, v:score, s: avgspeed, x:position, y:this.maxPositiony, y2:this.minPositiony });
+
+  this.score(score);
+  this.avgspeed(avgspeed);
+  
   world.DestroyBody(this.chassis);
   
   for (var i = 0; i < this.wheels.length; i++){

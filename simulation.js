@@ -78,8 +78,6 @@ function cw_resetPopulation() {
   document.getElementById("topscores").innerHTML = "";
   cw_clearGraphics();
   cw_carArray([]);
-  cw_carGeneration = new Array();
-  cw_carScores = new Array();
   cw_topScores = new Array();
   cw_graphTop = new Array();
   cw_graphElite = new Array();

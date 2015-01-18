@@ -5,9 +5,10 @@ var graphheight = 250;
 var graphwidth = 400;
 window.cw_storeGraphScores = cw_storeGraphScores;
 function cw_storeGraphScores() {
-  cw_graphAverage.push(cw_average(cw_carScores));
-  cw_graphElite.push(cw_eliteaverage(cw_carScores));
-  cw_graphTop.push(cw_carScores[0].v);
+  if(model.cars().length === 0) return;
+  cw_graphAverage.push(cw_average(model.cars()));
+  cw_graphElite.push(cw_eliteaverage(model.cars()));
+  cw_graphTop.push(model.cars()[0].score);
 }
 window.cw_plotTop = cw_plotTop;
 function cw_plotTop() {
@@ -52,20 +53,20 @@ function plot_graphs() {
   cw_listTopScores();
 }
 window.cw_eliteaverage = cw_eliteaverage;
-function cw_eliteaverage(scores) {
+function cw_eliteaverage(cars) {
   var sum = 0;
-  for(var k = 0; k < Math.floor(generationSize/2); k++) {
-    sum += scores[k].v;
+  for(var k = 0; k < Math.floor(cars.length/2); k++) {
+    sum += cars[k].score;
   }
-  return sum/Math.floor(generationSize/2);
+  return sum/Math.floor(cars.length/2);
 }
 window.cw_average = cw_average;
-function cw_average(scores) {
+function cw_average(cars) {
   var sum = 0;
-  for(var k = 0; k < generationSize; k++) {
-    sum += scores[k].v;
+  for(var k = 0; k < cars.length; k++) {
+    sum += cars[k].score;
   }
-  return sum/generationSize;
+  return sum/cars.length;
 }
 window.cw_clearGraphics = cw_clearGraphics;
 function cw_clearGraphics() {

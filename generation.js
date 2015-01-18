@@ -2,82 +2,75 @@
 /* ==== Generation ========================================================= */
 
 function cw_generationZero() {
+  var cw_carGeneration = [];
   for(var k = 0; k < curGenerationSize(); k++) {
-    var car_def = cw_createRandomCar();
-    car_def.index = k;
-    cw_carGeneration.push(car_def);
+    cw_carGeneration.push(cw_createRandomCar());
   }
   gen_counter(0);
   cw_deadCars = 0;
   leaderPosition = new Object();
   leaderPosition.x = 0;
   leaderPosition.y = 0;
-  cw_materializeGeneration();
+  cw_materializeGeneration(cw_carGeneration);
   ghost = ghost_create_ghost();
 }
 
-function cw_materializeGeneration() {
-  cw_carArray([]);
-  for(var k = 0; k < curGenerationSize(); k++) {
-    cw_carArray.push(new cw_Car(cw_carGeneration[k]));
-  }
-}
-
 function cw_nextGeneration() {
-  var badCars = 0;
-  model.cars().forEach(function(car, index) {
-    if(car.bad()) {
-      cw_carScores[index].v = -3;
-      badCars++;
+  plot_graphs();
+
+  var cars = model.cars();
+  for(var ix = cars.length - 1; ix >= 0; ix--) {
+    if(cars[ix].bad()) {
+      cars.splice(ix, 1);
     }
-  });
+  }
 
   curGenerationSize(generationSize());
   
-  cw_carScores.sort(function(a,b) {if(a.v > b.v) {return -1} else {return 1}});
-
-  plot_graphs();
+  cars.sort(function(a,b) {return b.score - a.score;});
 
   var nextCarsDefs = [];
-
   nextCarsDefs.push.apply(
     nextCarsDefs, 
-    cw_carScores
-      .slice(num_champions())
+    cars
+      .slice(0, num_champions())
       .map(function(x){
         x.car_def.is_elite = true;
         return x.car_def;
       })
   );
 
-  /*
-  for(var k = 0; k < num_champions(); k++) {
-    cw_carScores[k].car_def.is_elite = true;
-    cw_carScores[k].car_def.index = k;
-    newGeneration.push(cw_carScores[k].car_def);
-  }
-  */
-  for(k = num_champions(); k < curGenerationSize(); k++) {
-    var parent1 = cw_getParents(model.cars().length - badCars);
-    var parent2 = parent1;
-    while(parent2 == parent1) {
-      parent2 = cw_getParents(model.cars().length - badCars);
+  if(cars.length < 2) {
+    while(nextCarsDefs.length < curGenerationSize()) {
+      nextCarsDefs.push(cw_createRandomCar());
     }
-    var newborn = cw_makeChild(cw_carScores[parent1].car_def,
-                           cw_carScores[parent2].car_def);
-    newborn = cw_mutate(newborn);
-    newborn.is_elite = false;
-    newborn.index = k;
-    nextCarsDefs.push(newborn);
+  } else {
+    while(nextCarsDefs.length < curGenerationSize()) {
+      var parent1 = cw_getParents(cars.length);
+      var parent2 = parent1;
+      while(parent2 == parent1) {
+        parent2 = cw_getParents(cars.length);
+      }
+      var newborn = cw_makeChild(cars[parent1].car_def, cars[parent2].car_def);
+      newborn = cw_mutate(newborn);
+      newborn.is_elite = false;
+      nextCarsDefs.push(newborn);
+    }
   }
-  cw_carScores = new Array();
-  cw_carGeneration = nextCarsDefs;
+
   gen_counter(gen_counter() + 1);
-  cw_materializeGeneration();
+  cw_materializeGeneration(nextCarsDefs);
   cw_deadCars = 0;
   leaderPosition = new Object();
   leaderPosition.x = 0;
   leaderPosition.y = 0;
+}
+
+function cw_materializeGeneration(cw_carGeneration) {
+  cw_carArray([]);
+  for(var k = 0; k < curGenerationSize(); k++) {
+    cw_carArray.push(new cw_Car(cw_carGeneration[k]));
+  }
 }
 
 function cw_getParents(genSize) {
