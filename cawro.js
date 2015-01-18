@@ -31,8 +31,11 @@ var minimapscale = 3;
 var minimapfogdistance = 0;
 var fogdistance = document.getElementById("minimapfog").style;
 
-var generationSize = 20;
-var cw_carArray = new Array();
+var generationSize = ko.observable(20);
+var curGenerationSize = ko.observable(generationSize());
+var carsAlive = ko.observable(curGenerationSize());
+
+var cw_carArray = ko.observableArray();
 var cw_carGeneration = new Array();
 var cw_carScores = new Array();
 var cw_topScores = new Array();
@@ -40,11 +43,11 @@ var cw_graphTop = new Array();
 var cw_graphElite = new Array();
 var cw_graphAverage = new Array();
 
-var gen_champions = 1;
+var gen_champions = ko.observable(1).extend({numeric: 10, persist: 'gen_champions'});
 var gen_parentality = 0.2;
-var gen_mutation = 0.05;
-var mutation_range = 1;
-var gen_counter = 0;
+var gen_mutation = ko.observable(0.05).extend({numeric: 10, persist: 'gen_mutation'});
+var mutation_range = ko.observable(1).extend({numeric: 10, persist: 'mutation_range'});
+var gen_counter = ko.observable(0);
 var nAttributes = 15;
 
 var gravity = new b2Vec2(0.0, -9.81);
@@ -94,6 +97,14 @@ leaderPosition.y = 0;
 minimapcamera.width = 12*minimapscale+"px";
 minimapcamera.height = 6*minimapscale+"px";
 
+var model = {
+  gen_counter: gen_counter,
+  seedString: ko.observable("").extend({persist: 'seedString'}),
+  gen_mutation: gen_mutation,
+  cars: cw_carArray
+};
+ko.applyBindings(model);
+
 function debug(str, clear) {
   if(clear) {
     debugbox.innerHTML = "";
@@ -122,7 +133,7 @@ cw_Car.prototype.wheels = [];
 
 cw_Car.prototype.__constructor = function(car_def) {
   this.velocityIndex = 0;
-  this.health = max_car_health;
+  this.health = ko.observable(max_car_health);
   this.maxPosition = 0;
   this.maxPositiony = 0;
   this.minPositiony = 0;
@@ -130,20 +141,9 @@ cw_Car.prototype.__constructor = function(car_def) {
   this.car_def = car_def
   this.alive = true;
   this.is_elite = car_def.is_elite;
-  this.healthBar = document.getElementById("health"+car_def.index).style;
-  this.healthBarText = document.getElementById("health"+car_def.index).nextSibling.nextSibling;
-  this.healthBarText.innerHTML = car_def.index;
-  this.minimapmarker = document.getElementById("bar"+car_def.index);
+  this.max_car_health = max_car_health;
 
-  if(this.is_elite) {
-    this.healthBar.backgroundColor = "#44c";
-    this.minimapmarker.style.borderLeft = "1px solid #44c";
-    this.minimapmarker.innerHTML = car_def.index;
-  } else {
-    this.healthBar.backgroundColor = "#c44";
-    this.minimapmarker.style.borderLeft = "1px solid #c44";
-    this.minimapmarker.innerHTML = car_def.index;
-  }
+  this.position = ko.observable(0);
 
   this.chassis = cw_createChassis(car_def.vertex_list, car_def.chassis_density);
   
@@ -181,6 +181,9 @@ cw_Car.prototype.__constructor = function(car_def) {
 
 cw_Car.prototype.getPosition = function() {
   return this.chassis.GetPosition();
+}
+cw_Car.prototype.update = function() {
+  this.position(this.getPosition());
 }
 
 cw_Car.prototype.draw = function() {
@@ -220,19 +223,17 @@ cw_Car.prototype.checkDeath = function() {
     this.minPositiony = position.y;
   }
   if(position.x > this.maxPosition + 0.02) {
-    this.health = max_car_health;
+    this.health(max_car_health);
     this.maxPosition = position.x;
   } else {
     if(position.x > this.maxPosition) {
       this.maxPosition = position.x;
     }
     if(Math.abs(this.chassis.GetLinearVelocity().x) < 0.001) {
-      this.health -= 5;
+      this.health(this.health() - 5);
     }
-    this.health--;
-    if(this.health <= 0) {
-      this.healthBarText.innerHTML = "&#8708;";
-      this.healthBar.width = "0";
+    this.health(this.health() - 1);
+    if(this.health() <= 0) {
       return true;
     }
   }
@@ -340,41 +341,40 @@ function cw_createRandomCar() {
 /* ==== Generation ========================================================= */
 
 function cw_generationZero() {
-  for(var k = 0; k < generationSize; k++) {
+  for(var k = 0; k < curGenerationSize(); k++) {
     var car_def = cw_createRandomCar();
     car_def.index = k;
     cw_carGeneration.push(car_def);
   }
-  gen_counter = 0;
+  gen_counter(0);
   cw_deadCars = 0;
   leaderPosition = new Object();
   leaderPosition.x = 0;
   leaderPosition.y = 0;
   cw_materializeGeneration();
-  document.getElementById("generation").innerHTML = "generation 0";
-  document.getElementById("population").innerHTML = "cars alive: "+generationSize;
   ghost = ghost_create_ghost();
 }
 
 function cw_materializeGeneration() {
-  cw_carArray = new Array();
-  for(var k = 0; k < generationSize; k++) {
+  cw_carArray([]);
+  for(var k = 0; k < curGenerationSize(); k++) {
     cw_carArray.push(new cw_Car(cw_carGeneration[k]));
   }
 }
 
 function cw_nextGeneration() {
+  curGenerationSize(generationSize());
   var newGeneration = new Array();
   var newborn;
   cw_getChampions();
-  cw_topScores.push({i:gen_counter,v:cw_carScores[0].v,x:cw_carScores[0].x,y:cw_carScores[0].y,y2:cw_carScores[0].y2});
+  cw_topScores.push({i:gen_counter(),v:cw_carScores[0].v,x:cw_carScores[0].x,y:cw_carScores[0].y,y2:cw_carScores[0].y2});
   plot_graphs();
-  for(var k = 0; k < gen_champions; k++) {
+  for(var k = 0; k < gen_champions(); k++) {
     cw_carScores[k].car_def.is_elite = true;
     cw_carScores[k].car_def.index = k;
     newGeneration.push(cw_carScores[k].car_def);
   }
-  for(k = gen_champions; k < generationSize; k++) {
+  for(k = gen_champions(); k < curGenerationSize(); k++) {
     var parent1 = cw_getParents();
     var parent2 = parent1;
     while(parent2 == parent1) {
@@ -389,21 +389,18 @@ function cw_nextGeneration() {
   }
   cw_carScores = new Array();
   cw_carGeneration = newGeneration;
-  gen_counter++;
+  gen_counter(gen_counter() + 1);
   cw_materializeGeneration();
   cw_deadCars = 0;
   leaderPosition = new Object();
   leaderPosition.x = 0;
   leaderPosition.y = 0;
-  document.getElementById("generation").innerHTML = "generation "+gen_counter;
-  document.getElementById("cars").innerHTML = "";
-  document.getElementById("population").innerHTML = "cars alive: "+generationSize;
 }
 
 function cw_getChampions() {
   var ret = new Array();
   cw_carScores.sort(function(a,b) {if(a.v > b.v) {return -1} else {return 1}});
-  for(var k = 0; k < generationSize; k++) {
+  for(var k = 0; k < curGenerationSize; k++) {
     ret.push(cw_carScores[k].i);
   }
   return ret;
@@ -413,7 +410,7 @@ function cw_getParents() {
     var r = Math.random();
     if (r == 0)
         return 0;
-    return Math.floor(-Math.log(r) * generationSize) % generationSize;
+    return Math.floor(-Math.log(r) * curGenerationSize()) % curGenerationSize();
 }
 
 function cw_makeChild(car_def1, car_def2) {
@@ -490,7 +487,7 @@ function cw_makeChild(car_def1, car_def2) {
 
 
 function cw_mutate1(old, min, range) {
-    var span = range * mutation_range;
+    var span = range * mutation_range();
     var base = old - 0.5 * span;
     if (base < min)
         base = min;
@@ -500,7 +497,7 @@ function cw_mutate1(old, min, range) {
 }
 
 function cw_mutatev(car_def, n, xfact, yfact) {
-    if (Math.random() >= gen_mutation)
+    if (Math.random() >= gen_mutation())
         return;
 
     var v = car_def.vertex_list[n];
@@ -516,12 +513,12 @@ function cw_mutatev(car_def, n, xfact, yfact) {
 
 function cw_mutate(car_def) {
   for (var i = 0; i < car_def.wheelCount; i++){
-    if(Math.random() < gen_mutation){
+    if(Math.random() < gen_mutation()){
       car_def.wheel_radius[i] = cw_mutate1(car_def.wheel_radius[i], wheelMinRadius, wheelMaxRadius);
     }
   }
   
-  var wheel_m_rate = mutation_range < gen_mutation ? mutation_range : gen_mutation;
+  var wheel_m_rate = mutation_range() < gen_mutation() ? mutation_range() : gen_mutation();
   
   for (var i = 0; i < car_def.wheelCount; i++){
     if(Math.random() < wheel_m_rate){
@@ -530,12 +527,12 @@ function cw_mutate(car_def) {
   }
   
   for (var i = 0; i < car_def.wheelCount; i++){
-    if(Math.random() < gen_mutation){
+    if(Math.random() < gen_mutation()){
       car_def.wheel_density[i] = cw_mutate1(car_def.wheel_density[i], wheelMinDensity, wheelMaxDensity);
     }
   }
   
-  if(Math.random() < gen_mutation){
+  if(Math.random() < gen_mutation()){
     car_def.chassis_density = cw_mutate1(car_def.chassis_density, chassisMinDensity, chassisMaxDensity);
   }
 
@@ -565,14 +562,6 @@ function cw_chooseParent(curparent, attributeIndex) {
   return ret;
 }
 
-function cw_setMutation(mutation) {
-  gen_mutation = parseFloat(mutation);
-}
-
-function cw_setMutationRange(range) {
-  mutation_range = parseFloat(range);
-}
-
 function cw_setMutableFloor(choice) {
   mutable_floor = (choice==1);
 }
@@ -583,10 +572,6 @@ function cw_setGravity(choice) {
   if (world.GetGravity().y != gravity.y) {
     world.SetGravity(gravity);
   }
-}
-
-function cw_setEliteSize(clones) {
-  gen_champions = parseInt(clones, 10);
 }
 
 /* ==== END Genration ====================================================== */
@@ -618,7 +603,7 @@ function cw_setCameraTarget(k) {
 
 function cw_setCameraPosition() {
   if(camera_target >= 0) {
-    var cameraTargetPosition = cw_carArray[camera_target].getPosition();
+    var cameraTargetPosition = cw_carArray()[camera_target].getPosition();
   } else {
     var cameraTargetPosition = leaderPosition;
   }
@@ -647,8 +632,8 @@ function cw_drawGhostReplay() {
 
 
 function cw_drawCars() {
-  for(var k = (cw_carArray.length-1); k >= 0; k--) {
-    myCar = cw_carArray[k];
+  for(var k = (cw_carArray().length-1); k >= 0; k--) {
+    myCar = cw_carArray()[k];
     if(!myCar.alive) {
       continue;
     }
@@ -781,23 +766,21 @@ function cw_drawMiniMap() {
 
 
 function simulationStep() {
-  world.Step(1/box2dfps, 20, 20);
+  world.Step(1/box2dfps, 20, 20)
   ghost_move_frame(ghost);
-  for(var k = 0; k < generationSize; k++) {
-    if(!cw_carArray[k].alive) {
+  for(var k = 0; k < curGenerationSize(); k++) {
+    if(!cw_carArray()[k].alive) {
       continue;
     }
-    ghost_add_replay_frame(cw_carArray[k].replay, cw_carArray[k]);
-    cw_carArray[k].frames++;
-    position = cw_carArray[k].getPosition();
-    cw_carArray[k].minimapmarker.style.left = Math.round((position.x+5) * minimapscale) + "px";
-    cw_carArray[k].healthBar.width = Math.round((cw_carArray[k].health/max_car_health)*100) + "%";
-    if(cw_carArray[k].checkDeath()) {
-      cw_carArray[k].kill();
+    ghost_add_replay_frame(cw_carArray()[k].replay, cw_carArray()[k]);
+    cw_carArray()[k].frames++;
+    position = cw_carArray()[k].getPosition();
+    cw_carArray()[k].update();
+    if(cw_carArray()[k].checkDeath()) {
+      cw_carArray()[k].kill();
       cw_deadCars++;
-      document.getElementById("population").innerHTML = "cars alive: " + (generationSize-cw_deadCars);
-      cw_carArray[k].minimapmarker.style.borderLeft = "1px solid #ccc";
-      if(cw_deadCars >= generationSize) {
+      carsAlive(curGenerationSize()-cw_deadCars);
+      if(cw_deadCars >= curGenerationSize()) {
         cw_newRound();
       }
       if(leaderPosition.leader == k) {
@@ -816,11 +799,11 @@ function simulationStep() {
 
 function cw_findLeader() {
   var lead = 0;
-  for(var k = 0; k < cw_carArray.length; k++) {
-    if(!cw_carArray[k].alive) {
+  for(var k = 0; k < cw_carArray().length; k++) {
+    if(!cw_carArray()[k].alive) {
       continue;
     }
-    position = cw_carArray[k].getPosition();
+    position = cw_carArray()[k].getPosition();
     if(position.x > lead) {
       leaderPosition = position;
       leaderPosition.leader = k;
@@ -861,12 +844,11 @@ function cw_kill() {
   var avgspeed = (myCar.maxPosition / myCar.frames) * box2dfps;
   var position = myCar.maxPosition;
   var score = position + avgspeed;
-  document.getElementById("cars").innerHTML += Math.round(position*100)/100 + "m + " +" "+Math.round(avgspeed*100)/100+" m/s = "+ Math.round(score*100)/100 +"pts<br />";
   ghost_compare_to_replay(replay, ghost, score);
   cw_carScores.push({ i:current_car_index, v:score, s: avgspeed, x:position, y:myCar.maxPositiony, y2:myCar.minPositiony });
   current_car_index++;
   cw_killCar();
-  if(current_car_index >= generationSize) {
+  if(current_car_index >= curGenerationSize()) {
     cw_nextGeneration();
     current_car_index = 0;
   }
@@ -876,10 +858,9 @@ function cw_kill() {
 
 function cw_resetPopulation() {
   document.getElementById("generation").innerHTML = "";
-  document.getElementById("cars").innerHTML = "";
   document.getElementById("topscores").innerHTML = "";
   cw_clearGraphics();
-  cw_carArray = new Array();
+  cw_carArray([]);
   cw_carGeneration = new Array();
   cw_carScores = new Array();
   cw_topScores = new Array();
@@ -900,7 +881,7 @@ function cw_resetWorld() {
   for (b = world.m_bodyList; b; b = b.m_next) {
     world.DestroyBody(b);
   }
-  floorseed = document.getElementById("newseed").value;
+  floorseed = model.seedString();
   Math.seedrandom(floorseed);
   cw_createFloor();
   cw_drawMiniMap();
@@ -966,27 +947,8 @@ function cw_toggleGhostReplay(button) {
 
 // initial stuff, only called once (hopefully)
 function cw_init() {
-  // clone silver dot and health bar
-  var mmm  = document.getElementsByName('minimapmarker')[0];
-  var hbar = document.getElementsByName('healthbar')[0];
-
-  for(var k = 0; k < generationSize; k++) {
-
-    // minimap markers
-    var newbar = mmm.cloneNode(true);
-    newbar.id = "bar"+k;
-    newbar.style.paddingTop = k*9+"px";
-    minimapholder.appendChild(newbar);
-
-    // health bars
-    var newhealth = hbar.cloneNode(true);
-    newhealth.getElementsByTagName("DIV")[0].id = "health"+k;
-    newhealth.car_index = k;
-    document.getElementById("health").appendChild(newhealth);
-  }
-  mmm.parentNode.removeChild(mmm);
-  hbar.parentNode.removeChild(hbar);
-  floorseed = Math.seedrandom();
+  curGenerationSize(generationSize());
+  floorseed = model.seedString() || Math.seedrandom();
   world = new b2World(gravity, doSleep);
   cw_createFloor();
   cw_drawMiniMap();
@@ -1018,16 +980,16 @@ minimapholder.onclick = function(event){
   var coords = minimapholder.relMouseCoords(event);
   var closest = { 
     index: 0,
-    dist: Math.abs(((cw_carArray[0].getPosition().x + 6) * minimapscale) - coords.x),
-    x: cw_carArray[0].getPosition().x
+    dist: Math.abs(((cw_carArray()[0].getPosition().x + 6) * minimapscale) - coords.x),
+    x: cw_carArray()[0].getPosition().x
   }
   
   var maxX = 0;
-  for (var i = 0; i < cw_carArray.length; i++){
-    if (!cw_carArray[i].alive){
+  for (var i = 0; i < cw_carArray().length; i++){
+    if (!cw_carArray()[i].alive){
       continue;
     }
-    var pos = cw_carArray[i].getPosition();
+    var pos = cw_carArray()[i].getPosition();
     var dist = Math.abs(((pos.x + 6) * minimapscale) - coords.x);
     if (dist < closest.dist){
       closest.index = i;
