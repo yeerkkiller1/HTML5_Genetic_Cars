@@ -1,10 +1,21 @@
 /* ========================================================================= */
 /* ==== Floor ============================================================== */
+(function () {
 var floorPieceWidth = 1.5;
 var floorPieceHeight = 0.15;
+window.mutable_floor = false; // TODO: Make this not global maybe
+var maxFloorTiles = 200;
 
 var cw_floorTiles = new Array();
+var last_drawn_tile = 0;
 
+var minimapcanvas = document.getElementById("minimap");
+var minimapctx = minimapcanvas.getContext("2d");
+window.minimapscale = 3; // WARNING: Global
+var fogdistance = 0;
+var mipmapfogdistance = document.getElementById("minimapfog").style;
+
+window.cw_createFloor = cw_createFloor;
 function cw_createFloor() {
   var last_tile = null;
   var tile_position = new b2Vec2(-5,0);
@@ -25,7 +36,7 @@ function cw_createFloor() {
   }
 }
 
-
+window.cw_createFloorTile = cw_createFloorTile;
 function cw_createFloorTile(position, angle) {
   body_def = new b2BodyDef();
 
@@ -51,6 +62,7 @@ function cw_createFloorTile(position, angle) {
   return body;
 }
 
+window.cw_rotateFloorTile = cw_rotateFloorTile;
 function cw_rotateFloorTile(coords, center, angle) {
   var newcoords = new Array();
   for(var k = 0; k < coords.length; k++) {
@@ -64,7 +76,8 @@ function cw_rotateFloorTile(coords, center, angle) {
 
 /* ==== END Floor ========================================================== */
 /* ========================================================================= */
-function cw_drawFloor() {
+window.cw_drawFloor = cw_drawFloor;
+function cw_drawFloor(ctx) {
   ctx.strokeStyle = "#000";
   ctx.fillStyle = "#666";
   ctx.lineWidth = 1/zoom;
@@ -89,11 +102,12 @@ function cw_drawFloor() {
   ctx.stroke();
 }
 
+window.cw_drawMiniMap = cw_drawMiniMap;
 function cw_drawMiniMap() {
   var last_tile = null;
   var tile_position = new b2Vec2(-5,0);
-  minimapfogdistance = 0;
-  fogdistance.width = "800px";
+  fogdistance = 0;
+  document.getElementById('minimapfog').style.width = "800px";
   minimapcanvas.width = minimapcanvas.width;
   minimapctx.strokeStyle = "#000";
   minimapctx.beginPath();
@@ -107,3 +121,15 @@ function cw_drawMiniMap() {
   }
   minimapctx.stroke();
 }
+
+window.showDistance = showDistance;
+function showDistance(distance, height) {
+  distanceMeter.innerHTML = "distance: "+distance+" meters<br />";
+  distanceMeter.innerHTML += "height: "+height+" meters";
+  if(distance > fogdistance) {
+    document.getElementById('minimapfog').style.width =
+        800 - Math.round(distance + 15) * minimapscale + "px";
+    fogdistance = distance;
+  }
+}
+})();

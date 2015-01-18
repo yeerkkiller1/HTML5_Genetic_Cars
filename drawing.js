@@ -1,13 +1,23 @@
-/* ========================================================================= */
-/* ==== Drawing ============================================================ */
+(function () {
+var cameraspeed = 0.05;
+window.camera_x = 0;
+window.camera_y = 0;
+window.camera_target = -1; // which car should we follow? -1 = leader
+var minimapcamera = document.getElementById("minimapcamera").style;
+minimapcamera.width = 12*minimapscale+"px";
+minimapcamera.height = 6*minimapscale+"px";
 
+var canvas = document.getElementById("mainbox");
+var ctx = canvas.getContext("2d");
+
+window.cw_drawScreen = cw_drawScreen;
 function cw_drawScreen() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.save();
   cw_setCameraPosition();
   ctx.translate(200-(camera_x*zoom), 200+(camera_y*zoom));
   ctx.scale(zoom, -zoom);
-  cw_drawFloor();
+  cw_drawFloor(ctx);
   ghost_draw_frame(ctx, ghost);
   cw_drawCars();
   ctx.restore();
@@ -18,6 +28,7 @@ function cw_minimapCamera(x, y) {
   minimapcamera.top = Math.round((31-camera_y) * minimapscale) + "px";
 }
 
+window.cw_setCameraTarget = cw_setCameraTarget;
 function cw_setCameraTarget(k) {
   camera_target = k;
 }
@@ -35,23 +46,7 @@ function cw_setCameraPosition() {
   cw_minimapCamera(camera_x, camera_y);
 }
 
-function cw_drawGhostReplay() {
-  carPosition = ghost_get_position(ghost);
-  camera_x = carPosition.x;
-  camera_y = carPosition.y;
-  cw_minimapCamera(camera_x, camera_y);
-  showDistance(Math.round(carPosition.x*100)/100, Math.round(carPosition.y*100)/100);
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.save();
-  ctx.translate(200-(carPosition.x*zoom), 200+(carPosition.y*zoom));
-  ctx.scale(zoom, -zoom);
-  ghost_draw_frame(ctx, ghost);
-  ghost_move_frame(ghost);
-  cw_drawFloor();
-  ctx.restore();
-}
-
-
+window.cw_drawCars = cw_drawCars;
 function cw_drawCars() {
   for(var k = (cw_carArray().length-1); k >= 0; k--) {
     myCar = cw_carArray()[k];
@@ -98,7 +93,7 @@ function cw_drawCars() {
     ctx.stroke();
   }
 }
-
+window.toggleDisplay = toggleDisplay;
 function toggleDisplay() {
   if(cw_paused) {
     return;
@@ -119,7 +114,7 @@ function toggleDisplay() {
     cw_startSimulation();
   }
 }
-
+window.cw_drawVirtualPoly = cw_drawVirtualPoly;
 function cw_drawVirtualPoly(body, vtx, n_vtx) {
   // set strokestyle and fillstyle before call
   // call beginPath before call
@@ -162,6 +157,4 @@ function cw_drawCircle(body, center, radius, angle, color) {
   ctx.fill();
   ctx.stroke();
 }
-
-/* ==== END Drawing ======================================================== */
-/* ========================================================================= */
+})();

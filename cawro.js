@@ -5,15 +5,6 @@ function debug(str, clear) {
   debugbox.innerHTML += str+"<br />";
 }
 
-function showDistance(distance, height) {
-  distanceMeter.innerHTML = "distance: "+distance+" meters<br />";
-  distanceMeter.innerHTML += "height: "+height+" meters";
-  if(distance > minimapfogdistance) {
-    fogdistance.width = 800 - Math.round(distance + 15) * minimapscale + "px";
-    minimapfogdistance = distance;
-  }
-}
-
 /* ========================================================================= */
 /* === Car ================================================================= */
 var cw_Car = function() {
@@ -232,5 +223,3 @@ function cw_createRandomCar() {
 
 /* === END Car ============================================================= */
 /* ========================================================================= */
-
-

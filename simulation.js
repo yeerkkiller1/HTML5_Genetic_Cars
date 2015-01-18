@@ -73,22 +73,6 @@ function cw_stopSimulation() {
   clearInterval(cw_drawInterval);
 }
 
-function cw_kill() {
-  var avgspeed = (myCar.maxPosition / myCar.frames) * box2dfps;
-  var position = myCar.maxPosition;
-  var score = position + avgspeed;
-  ghost_compare_to_replay(replay, ghost, score);
-  cw_carScores.push({ i:current_car_index, v:score, s: avgspeed, x:position, y:myCar.maxPositiony, y2:myCar.minPositiony });
-  current_car_index++;
-  cw_killCar();
-  if(current_car_index >= curGenerationSize()) {
-    cw_nextGeneration();
-    current_car_index = 0;
-  }
-  myCar = cw_createNextCar();
-  last_drawn_tile = 0;
-}
-
 function cw_resetPopulation() {
   document.getElementById("generation").innerHTML = "";
   document.getElementById("topscores").innerHTML = "";
@@ -130,53 +114,6 @@ function cw_confirmResetWorld() {
     return false;
   }
 }
-
-// ghost replay stuff
-
-function cw_pauseSimulation() {
-  cw_paused = true;
-  clearInterval(cw_runningInterval);
-  clearInterval(cw_drawInterval);
-  old_last_drawn_tile = last_drawn_tile;
-  last_drawn_tile = 0;
-  ghost_pause(ghost);
-}
-
-function cw_resumeSimulation() {
-  cw_paused = false;
-  ghost_resume(ghost);
-  last_drawn_tile = old_last_drawn_tile;
-  cw_runningInterval = setInterval(simulationStep, Math.round(1000/box2dfps));
-  cw_drawInterval = setInterval(cw_drawScreen, Math.round(1000/screenfps));
-}
-
-function cw_startGhostReplay() {
-  if(!doDraw) {
-    toggleDisplay();
-  }
-  cw_pauseSimulation();
-  cw_ghostReplayInterval = setInterval(cw_drawGhostReplay,Math.round(1000/screenfps));
-}
-
-function cw_stopGhostReplay() {
-  clearInterval(cw_ghostReplayInterval);
-  cw_ghostReplayInterval = null;
-  cw_findLeader();
-  camera_x = leaderPosition.x;
-  camera_y = leaderPosition.y;
-  cw_resumeSimulation();
-}
-
-function cw_toggleGhostReplay(button) {
-  if(cw_ghostReplayInterval == null) {
-    cw_startGhostReplay();
-    button.value = "Resume simulation";
-  } else {
-    cw_stopGhostReplay();
-    button.value = "View top replay";
-  }
-}
-// ghost replay stuff END
 
 // initial stuff, only called once (hopefully)
 function cw_init() {
