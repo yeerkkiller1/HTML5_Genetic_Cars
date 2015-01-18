@@ -1,10 +1,15 @@
 /* ========================================================================= */
 /* ==== Floor ============================================================== */
+(function () {
 var floorPieceWidth = 1.5;
 var floorPieceHeight = 0.15;
+window.mutable_floor = false; // TODO: Make this not global maybe
+var maxFloorTiles = 200;
 
 var cw_floorTiles = new Array();
+var last_drawn_tile = 0;
 
+window.cw_createFloor = cw_createFloor;
 function cw_createFloor() {
   var last_tile = null;
   var tile_position = new b2Vec2(-5,0);
@@ -25,7 +30,7 @@ function cw_createFloor() {
   }
 }
 
-
+window.cw_createFloorTile = cw_createFloorTile;
 function cw_createFloorTile(position, angle) {
   body_def = new b2BodyDef();
 
@@ -51,6 +56,7 @@ function cw_createFloorTile(position, angle) {
   return body;
 }
 
+window.cw_rotateFloorTile = cw_rotateFloorTile;
 function cw_rotateFloorTile(coords, center, angle) {
   var newcoords = new Array();
   for(var k = 0; k < coords.length; k++) {
@@ -64,6 +70,7 @@ function cw_rotateFloorTile(coords, center, angle) {
 
 /* ==== END Floor ========================================================== */
 /* ========================================================================= */
+window.cw_drawFloor = cw_drawFloor;
 function cw_drawFloor() {
   ctx.strokeStyle = "#000";
   ctx.fillStyle = "#666";
@@ -89,6 +96,7 @@ function cw_drawFloor() {
   ctx.stroke();
 }
 
+window.cw_drawMiniMap = cw_drawMiniMap;
 function cw_drawMiniMap() {
   var last_tile = null;
   var tile_position = new b2Vec2(-5,0);
@@ -107,3 +115,4 @@ function cw_drawMiniMap() {
   }
   minimapctx.stroke();
 }
+})();
