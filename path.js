@@ -9,6 +9,12 @@ var maxFloorTiles = 200;
 var cw_floorTiles = new Array();
 var last_drawn_tile = 0;
 
+var minimapcanvas = document.getElementById("minimap");
+var minimapctx = minimapcanvas.getContext("2d");
+window.minimapscale = 3; // WARNING: Global
+var fogdistance = 0;
+var mipmapfogdistance = document.getElementById("minimapfog").style;
+
 window.cw_createFloor = cw_createFloor;
 function cw_createFloor() {
   var last_tile = null;
@@ -101,7 +107,7 @@ function cw_drawMiniMap() {
   var last_tile = null;
   var tile_position = new b2Vec2(-5,0);
   fogdistance = 0;
-  mipmapfogdistance.width = "800px";
+  document.getElementById('minimapfog').style.width = "800px";
   minimapcanvas.width = minimapcanvas.width;
   minimapctx.strokeStyle = "#000";
   minimapctx.beginPath();
@@ -114,5 +120,16 @@ function cw_drawMiniMap() {
     minimapctx.lineTo((tile_position.x + 5) * minimapscale, (-tile_position.y + 35) * minimapscale);
   }
   minimapctx.stroke();
+}
+
+window.showDistance = showDistance;
+function showDistance(distance, height) {
+  distanceMeter.innerHTML = "distance: "+distance+" meters<br />";
+  distanceMeter.innerHTML += "height: "+height+" meters";
+  if(distance > fogdistance) {
+    document.getElementById('minimapfog').style.width =
+        800 - Math.round(distance + 15) * minimapscale + "px";
+    fogdistance = distance;
+  }
 }
 })();

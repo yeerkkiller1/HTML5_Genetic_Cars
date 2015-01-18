@@ -12,20 +12,6 @@ var debugbox = document.getElementById("debug");
 var canvas = document.getElementById("mainbox");
 var ctx = canvas.getContext("2d");
 
-var minimapcanvas = document.getElementById("minimap");
-var minimapctx = minimapcanvas.getContext("2d");
-var minimapscale = 3;
-var fogdistance = 0;
-var mipmapfogdistance = document.getElementById("minimapfog").style;
-
-var cameraspeed = 0.05;
-var camera_y = 0;
-var camera_x = 0;
-var camera_target = -1; // which car should we follow? -1 = leader
-var minimapcamera = document.getElementById("minimapcamera").style;
-minimapcamera.width = 12*minimapscale+"px";
-minimapcamera.height = 6*minimapscale+"px";
-
 var generationSize = ko.observable(20);
 var curGenerationSize = ko.observable(generationSize());
 var carsAlive = ko.observable(curGenerationSize());
