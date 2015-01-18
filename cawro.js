@@ -60,11 +60,7 @@ var zoom = 70;
 var mutable_floor = false;
 
 var maxFloorTiles = 200;
-var cw_floorTiles = new Array();
 var last_drawn_tile = 0;
-
-var groundPieceWidth = 1.5;
-var groundPieceHeight = 0.15;
 
 var chassisMaxAxis = 1.1;
 var chassisMinAxis = 0.1;
@@ -75,13 +71,6 @@ var wheelMaxRadius = 0.5;
 var wheelMinRadius = 0.2;
 var wheelMaxDensity = 100;
 var wheelMinDensity = 40;
-
-var velocityIndex = 0;
-var deathSpeed = 0.1;
-var max_car_health = box2dfps * 10;
-var car_health = max_car_health;
-
-var motorSpeed = 20;
 
 var swapPoint1 = 0;
 var swapPoint2 = 0;
@@ -127,13 +116,13 @@ var cw_Car = function() {
   this.__constructor.apply(this, arguments);
 }
 
+cw_Car.prototype.maxHealth = box2dfps * 10;
 cw_Car.prototype.chassis = null;
 
 cw_Car.prototype.wheels = [];
 
 cw_Car.prototype.__constructor = function(car_def) {
-  this.velocityIndex = 0;
-  this.health = ko.observable(max_car_health);
+  this.health = ko.observable(this.maxHealth);
   this.maxPosition = 0;
   this.maxPositiony = 0;
   this.minPositiony = 0;
@@ -141,7 +130,6 @@ cw_Car.prototype.__constructor = function(car_def) {
   this.car_def = car_def
   this.alive = true;
   this.is_elite = car_def.is_elite;
-  this.max_car_health = max_car_health;
   this.bad = ko.observable(false);
 
   this.position = ko.observable(0);
@@ -169,7 +157,7 @@ cw_Car.prototype.__constructor = function(car_def) {
     joint_def.localAnchorA.Set(randvertex.x, randvertex.y);
     joint_def.localAnchorB.Set(0, 0);
     joint_def.maxMotorTorque = torque[i];
-    joint_def.motorSpeed = -motorSpeed;
+    joint_def.motorSpeed = -20;
     joint_def.enableMotor = true;
     joint_def.bodyA = this.chassis;
     joint_def.bodyB = this.wheels[i];
@@ -228,7 +216,7 @@ cw_Car.prototype.checkDeath = function() {
     this.minPositiony = position.y;
   }
   if(position.x > this.maxPosition + 0.02) {
-    this.health(max_car_health);
+    this.health(this.maxHealth);
     this.maxPosition = position.x;
   } else {
     if(position.x > this.maxPosition) {
@@ -756,29 +744,8 @@ function cw_drawCircle(body, center, radius, angle, color) {
   ctx.stroke();
 }
 
-function cw_drawMiniMap() {
-  var last_tile = null;
-  var tile_position = new b2Vec2(-5,0);
-  minimapfogdistance = 0;
-  fogdistance.width = "800px";
-  minimapcanvas.width = minimapcanvas.width;
-  minimapctx.strokeStyle = "#000";
-  minimapctx.beginPath();
-  minimapctx.moveTo(0,35 * minimapscale);
-  for(var k = 0; k < cw_floorTiles.length; k++) {
-    last_tile = cw_floorTiles[k];
-    last_fixture = last_tile.GetFixtureList();
-    last_world_coords = last_tile.GetWorldPoint(last_fixture.GetShape().m_vertices[3]);
-    tile_position = last_world_coords;
-    minimapctx.lineTo((tile_position.x + 5) * minimapscale, (-tile_position.y + 35) * minimapscale);
-  }
-  minimapctx.stroke();
-}
-
 /* ==== END Drawing ======================================================== */
 /* ========================================================================= */
-
-
 function simulationStep() {
   world.Step(1/box2dfps, 20, 20)
   ghost_move_frame(ghost);

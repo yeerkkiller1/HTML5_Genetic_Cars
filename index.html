@@ -91,7 +91,7 @@
           <div name="healthbar" class="healthbar" style="float: left"
           data-bind="click: window.cw_setCameraTarget.bind(null, $index()), css: {bad: bad}" >
             <div name="health" class="health" data-bind="
-              style: { width: ~~(health() / max_car_health * 100) + '%', 
+              style: { width: ~~(health() / maxHealth * 100) + '%',
               backgroundColor: is_elite ? '#44c' : '#c44'
             }"></div>
             <div name="healthtext" class="healthtext" data-bind="text: health() > 0 ? $index() : '&#8708;'"></div>
