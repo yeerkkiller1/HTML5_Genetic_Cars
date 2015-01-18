@@ -1,5 +1,7 @@
 /* ========================================================================= */
 /* ==== Floor ============================================================== */
+var groundPieceWidth = 1.5;
+var groundPieceHeight = 0.15;
 
 function cw_createFloor() {
   var last_tile = null;

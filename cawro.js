@@ -63,9 +63,6 @@ var maxFloorTiles = 200;
 var cw_floorTiles = new Array();
 var last_drawn_tile = 0;
 
-var groundPieceWidth = 1.5;
-var groundPieceHeight = 0.15;
-
 var chassisMaxAxis = 1.1;
 var chassisMinAxis = 0.1;
 var chassisMinDensity = 30;
@@ -75,11 +72,6 @@ var wheelMaxRadius = 0.5;
 var wheelMinRadius = 0.2;
 var wheelMaxDensity = 100;
 var wheelMinDensity = 40;
-
-var velocityIndex = 0;
-var deathSpeed = 0.1;
-
-var motorSpeed = 20;
 
 var swapPoint1 = 0;
 var swapPoint2 = 0;
@@ -131,7 +123,6 @@ cw_Car.prototype.chassis = null;
 cw_Car.prototype.wheels = [];
 
 cw_Car.prototype.__constructor = function(car_def) {
-  this.velocityIndex = 0;
   this.health = ko.observable(this.maxHealth);
   this.maxPosition = 0;
   this.maxPositiony = 0;
@@ -167,7 +158,7 @@ cw_Car.prototype.__constructor = function(car_def) {
     joint_def.localAnchorA.Set(randvertex.x, randvertex.y);
     joint_def.localAnchorB.Set(0, 0);
     joint_def.maxMotorTorque = torque[i];
-    joint_def.motorSpeed = -motorSpeed;
+    joint_def.motorSpeed = -20;
     joint_def.enableMotor = true;
     joint_def.bodyA = this.chassis;
     joint_def.bodyB = this.wheels[i];
