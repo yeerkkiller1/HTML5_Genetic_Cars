@@ -1,11 +1,9 @@
 function simulationStep() {
   world.Step(1/box2dfps, 20, 20)
-  ghost_move_frame(ghost);
   for(var k = 0; k < curGenerationSize(); k++) {
     if(!cw_carArray()[k].alive) {
       continue;
     }
-    ghost_add_replay_frame(cw_carArray()[k].replay, cw_carArray()[k]);
     cw_carArray()[k].frames++;
     position = cw_carArray()[k].getPosition();
     cw_carArray()[k].update();
@@ -46,16 +44,11 @@ function cw_findLeader() {
 
 function cw_newRound() {
   if (mutable_floor) {
-    // GHOST DISABLED
-    ghost = null;
     floorseed = Math.seedrandom();
 
     world = new b2World(gravity, doSleep);
     cw_createFloor();
     cw_drawMiniMap();
-  } else {
-    // RE-ENABLE GHOST
-    ghost_reset_ghost(ghost);
   }
 
   cw_nextGeneration();
@@ -78,16 +71,13 @@ function cw_resetPopulation() {
   document.getElementById("topscores").innerHTML = "";
   cw_clearGraphics();
   cw_carArray([]);
-  cw_topScores = new Array();
-  cw_graphTop = new Array();
-  cw_graphElite = new Array();
-  cw_graphAverage = new Array();
+  cw_resetGraph();
   lastmax = 0;
   lastaverage = 0;
   lasteliteaverage = 0;
   swapPoint1 = 0;
   swapPoint2 = 0;
-  cw_generationZero();
+  cw_nextGeneration();
 }
 
 function cw_resetWorld() {
@@ -120,7 +110,7 @@ function cw_init() {
   world = new b2World(gravity, doSleep);
   cw_createFloor();
   cw_drawMiniMap();
-  cw_generationZero();
+  cw_nextGeneration();
   cw_runningInterval = setInterval(simulationStep, Math.round(1000/box2dfps));
   cw_drawInterval    = setInterval(cw_drawScreen,  Math.round(1000/screenfps));
 }

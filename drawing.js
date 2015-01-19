@@ -18,7 +18,6 @@ function cw_drawScreen() {
   ctx.translate(200-(camera_x*zoom), 200+(camera_y*zoom));
   ctx.scale(zoom, -zoom);
   cw_drawFloor(ctx);
-  ghost_draw_frame(ctx, ghost);
   cw_drawCars();
   ctx.restore();
 }

@@ -1,6 +1,4 @@
 // Global Vars
-var ghost;
-
 var doDraw = true;
 var cw_paused = false;
 
@@ -9,15 +7,11 @@ var screenfps = 60;
 
 var debugbox = document.getElementById("debug");
 
-var generationSize = ko.observable(20);
+var generationSize = ko.observable(20).extend({ persist: 'generationSize' });
 var curGenerationSize = ko.observable(generationSize());
 var carsAlive = ko.observable(curGenerationSize());
 
 var cw_carArray = ko.observableArray();
-var cw_topScores = new Array();
-var cw_graphTop = new Array();
-var cw_graphElite = new Array();
-var cw_graphAverage = new Array();
 
 var num_champions = ko.observable(1).extend({numeric: 10, persist: 'num_champions'});
 var gen_parentality = 0.2;

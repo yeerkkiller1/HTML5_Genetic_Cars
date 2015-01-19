@@ -63,9 +63,6 @@ cw_Car.prototype.__constructor = function(car_def) {
     joint_def.bodyB = this.wheels[i];
     var joint = world.CreateJoint(joint_def);
   }
-  
-  this.replay = ghost_create_replay();
-  ghost_add_replay_frame(this.replay, this);
 }
 
 cw_Car.prototype.toggleBad = function() {
@@ -91,7 +88,6 @@ cw_Car.prototype.kill = function() {
   var avgspeed = (this.maxPosition / this.frames) * box2dfps;
   var position = this.maxPosition;
   var score = position + avgspeed;
-  ghost_compare_to_replay(this.replay, ghost, score);
 
   this.score(score);
   this.avgspeed(avgspeed);
@@ -154,7 +150,7 @@ function cw_createChassisPart(body, vertex1, vertex2, density) {
 function cw_createChassis(vertex_list, density) {
   var body_def = new b2BodyDef();
   body_def.type = b2Body.b2_dynamicBody;
-  body_def.position.Set(0.0, 4.0);
+  body_def.position.Set(0.0, 10.0);
 
   var body = world.CreateBody(body_def);
 

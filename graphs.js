@@ -1,90 +1,126 @@
 (function () {
+
+var cw_topScores;
+var cw_graphTop;
+var cw_graphElite;
+var cw_graphAverage;
+
+resetGraph();
+
 var graphcanvas = document.getElementById("graphcanvas");
 var graphctx = graphcanvas.getContext("2d");
-var graphheight = 250;
-var graphwidth = 400;
-window.cw_storeGraphScores = cw_storeGraphScores;
 function cw_storeGraphScores() {
   if(model.cars().length === 0) return;
   cw_graphAverage.push(cw_average(model.cars()));
   cw_graphElite.push(cw_eliteaverage(model.cars()));
   cw_graphTop.push(model.cars()[0].score());
 }
-window.cw_plotTop = cw_plotTop;
-function cw_plotTop() {
-  var graphsize = cw_graphTop.length;
-  graphctx.strokeStyle = "#f00";
-  graphctx.beginPath();
-  graphctx.moveTo(0,0);
-  for(var k = 0; k < graphsize; k++) {
-    graphctx.lineTo(400*(k+1)/graphsize,cw_graphTop[k]);
-  }
-  graphctx.stroke();
+
+function cw_eliteaverage(cars) {
+    return avgArr(cars
+                    .filter(function (x) { return x.is_elite; })
+                    .map(function (x) { return x.score(); })
+            );
 }
-window.cw_plotElite = cw_plotElite;
-function cw_plotElite() {
-  var graphsize = cw_graphElite.length;
-  graphctx.strokeStyle = "#0f0";
-  graphctx.beginPath();
-  graphctx.moveTo(0,0);
-  for(var k = 0; k < graphsize; k++) {
-    graphctx.lineTo(400*(k+1)/graphsize,cw_graphElite[k]);
-  }
-  graphctx.stroke();
+function cw_average(cars) {
+    return avgArr(cars.map(function (x) { return x.score(); }));
 }
-window.cw_plotAverage = cw_plotAverage;
-function cw_plotAverage() {
-  var graphsize = cw_graphAverage.length;
-  graphctx.strokeStyle = "#00f";
-  graphctx.beginPath();
-  graphctx.moveTo(0,0);
-  for(var k = 0; k < graphsize; k++) {
-    graphctx.lineTo(400*(k+1)/graphsize,cw_graphAverage[k]);
-  }
-  graphctx.stroke();
+
+window.resetGraph = resetGraph;
+function resetGraph() {
+    cw_topScores = [];
+    cw_graphTop = [];
+    cw_graphElite = [];
+    cw_graphAverage = [];
 }
+function maxArr(arr) {
+    return arr.reduce(function(x, y){return Math.max(x, y);}, 0);
+}
+function avgArr(arr) {
+    if (arr.length === 0) return 0;
+    return arr.reduce(function (x, y) { return x + y; }, 0) / arr.length;
+}
+function getMaxScore() {
+    return Math.max(
+        maxArr(cw_topScores),
+        maxArr(cw_graphTop),
+        maxArr(cw_graphElite),
+        maxArr(cw_graphAverage)
+    );
+}
+
+function plotLineData(sX, sY, data, xScale, yScale, color) {
+    graphctx.strokeStyle = color;
+    graphctx.beginPath();
+    graphctx.moveTo(sX * xScale, sY * yScale);
+    data.forEach(function (datum) {
+        graphctx.lineTo(datum.x * xScale, datum.y * yScale);
+    });
+    graphctx.stroke();
+}
+
+    //"#f00"
+    //"#0f0"
+    //"#00f"
+
 window.plot_graphs = plot_graphs;
 function plot_graphs() {
-  cw_storeGraphScores();
-  cw_clearGraphics();
-  cw_plotAverage();
-  cw_plotElite();
-  cw_plotTop();
-  cw_listTopScores();
+    cw_storeGraphScores();
+    cw_clearGraphics();
+    cw_listTopScores();
+
+    var maxY = getMaxScore();
+    var yScale = graphcanvas.height / maxY;
+    var xScale = 20;
+
+    plotLineData(0, maxY, cw_graphTop.map(function (x, index) { return { x: index + 1, y: maxY - x }; }), xScale, yScale, "green");
+    plotLineData(0, maxY, cw_graphElite.map(function (x, index) { return { x: index + 1, y: maxY - x }; }), xScale, yScale, "blue");
+    plotLineData(0, maxY, cw_graphAverage.map(function (x, index) { return { x: index + 1, y: maxY - x }; }), xScale, yScale, "red");
+
+    graphctx.font = "10px Verdana";
+    graphctx.fillStyle = "green";
+    var txt = "Top Car";
+    graphctx.fillText(txt, graphcanvas.width - graphctx.measureText(txt).width - 20, graphcanvas.height - 30);
+
+    graphctx.fillStyle = "blue";
+    var txt = "Elite Average";
+    graphctx.fillText(txt, graphcanvas.width - graphctx.measureText(txt).width - 20, graphcanvas.height - 20);
+
+    graphctx.fillStyle = "red";
+    var txt = "All Average";
+    graphctx.fillText(txt, graphcanvas.width - graphctx.measureText(txt).width - 20, graphcanvas.height - 10);
+
+    var lineStops = [];
+    var lineSpace = 30;
+    var lineCount = 7; //Math.max(3, Math.min(10, graphHeight / lineSpace));
+    for (var ix = 0; ix <= lineCount - 1; ix++) {
+        lineStops.push(ix / (lineCount - 1));
+    }
+    lineStops.forEach(function (lineStop) {
+        var stopValue = lineStop * maxY;
+        var yPos = maxY - stopValue;
+        yPos *= yScale;
+
+        graphctx.lineWidth = 1;
+        graphctx.strokeStyle = "#888";
+        graphctx.beginPath();
+        graphctx.moveTo(0, yPos);
+        graphctx.lineTo(graphcanvas.width, yPos);
+        graphctx.stroke();
+
+        yPos -= 2;
+        if (lineStop === 1) {
+            yPos += 12;
+        }
+        graphctx.font = "10px Verdana";
+        graphctx.fillStyle = "black";
+        var txt = stopValue.toFixed(0);
+        graphctx.fillText(txt, graphcanvas.width - graphctx.measureText(txt).width - 2, yPos);
+    });
 }
-window.cw_eliteaverage = cw_eliteaverage;
-function cw_eliteaverage(cars) {
-  var sum = 0;
-  for(var k = 0; k < Math.floor(cars.length/2); k++) {
-    sum += cars[k].score();
-  }
-  return sum/Math.floor(cars.length/2);
-}
-window.cw_average = cw_average;
-function cw_average(cars) {
-  var sum = 0;
-  for(var k = 0; k < cars.length; k++) {
-    sum += cars[k].score();
-  }
-  return sum/cars.length;
-}
-window.cw_clearGraphics = cw_clearGraphics;
 function cw_clearGraphics() {
-  graphcanvas.width = graphcanvas.width;
-  graphctx.translate(0,graphheight);
-  graphctx.scale(1,-1);
-  graphctx.lineWidth = 1;
-  graphctx.strokeStyle="#888";
-  graphctx.beginPath();
-  graphctx.moveTo(0,graphheight/2);
-  graphctx.lineTo(graphwidth, graphheight/2);
-  graphctx.moveTo(0,graphheight/4);
-  graphctx.lineTo(graphwidth, graphheight/4);
-  graphctx.moveTo(0,graphheight*3/4);
-  graphctx.lineTo(graphwidth, graphheight*3/4);
-  graphctx.stroke();
+    graphcanvas.width = graphcanvas.width;
 }
-window.cw_listTopScores = cw_listTopScores;
 function cw_listTopScores() {
   var ts = document.getElementById("topscores");
   ts.innerHTML = "Top Scores:<br />";

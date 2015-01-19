@@ -1,10 +1,6 @@
 /* ========================================================================= */
 /* ==== Generation ========================================================= */
 
-function cw_generationZero() {
-  cw_nextGeneration();
-}
-
 function cw_nextGeneration() {
   var cars = model.cars();
   cars.sort(function(a,b) {return b.score() - a.score();});
@@ -57,7 +53,8 @@ function cw_nextGeneration() {
 
 function cw_materializeGeneration(cw_carGeneration) {
   cw_carArray([]);
-  for(var k = 0; k < curGenerationSize(); k++) {
+  for (var k = 0; k < curGenerationSize() ; k++) {
+      console.log("Making car: ", cw_carGeneration[k]);
     cw_carArray.push(new cw_Car(cw_carGeneration[k]));
   }
 }
