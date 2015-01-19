@@ -11,8 +11,10 @@ function simulationStep() {
       cw_carArray()[k].kill();
       cw_deadCars++;
       carsAlive(curGenerationSize()-cw_deadCars);
-      if(cw_deadCars >= curGenerationSize()) {
-        cw_newRound();
+      if (cw_deadCars >= curGenerationSize()) {
+          setTimeout(function () {
+              cw_newRound();
+          }, 1000);
       }
       if(leaderPosition.leader == k) {
         // leader is dead, find new leader
