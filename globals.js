@@ -13,10 +13,10 @@ var carsAlive = ko.observable(curGenerationSize());
 
 var cw_carArray = ko.observableArray();
 
-var num_champions = ko.observable(1).extend({numeric: 10, persist: 'num_champions'});
+var num_champions = ko.observable(1).extend({ numeric: 10, persist: 'num_champions' });
 var gen_parentality = 0.2;
-var gen_mutation = ko.observable(0.05).extend({numeric: 10, persist: 'gen_mutation'});
-var mutation_range = ko.observable(1).extend({numeric: 10, persist: 'mutation_range'});
+var gen_mutation = ko.observable(0.05).extend({ numeric: 10, persist: 'gen_mutation' });
+var mutation_range = ko.observable(1).extend({ numeric: 10, persist: 'mutation_range' });
 var gen_counter = ko.observable(0);
 var nAttributes = 15;
 
@@ -47,9 +47,9 @@ leaderPosition.x = 0;
 leaderPosition.y = 0;
 
 var model = {
-  gen_counter: gen_counter,
-  seedString: ko.observable("").extend({persist: 'seedString'}),
-  gen_mutation: gen_mutation,
-  cars: cw_carArray
+    gen_counter: gen_counter,
+    seedString: ko.observable("").extend({ persist: 'seedString' }),
+    gen_mutation: gen_mutation,
+    cars: cw_carArray
 };
 ko.applyBindings(model);
