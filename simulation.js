@@ -12,9 +12,7 @@ function simulationStep() {
       cw_deadCars++;
       carsAlive(curGenerationSize()-cw_deadCars);
       if (cw_deadCars >= curGenerationSize()) {
-          setTimeout(function () {
-              cw_newRound();
-          }, 1000);
+        cw_newRound();
       }
       if(leaderPosition.leader == k) {
         // leader is dead, find new leader
@@ -45,17 +43,18 @@ function cw_findLeader() {
 }
 
 function cw_newRound() {
-  if (mutable_floor) {
-    floorseed = Math.seedrandom();
+    if (mutable_floor) {
+        world = new b2World(gravity, doSleep);
+        cw_createFloor(Math.seedrandom());
+        cw_drawMiniMap();
+    } else {
+        world = new b2World(gravity, doSleep);
+        cw_createFloor(model.seedString());
+    }
 
-    world = new b2World(gravity, doSleep);
-    cw_createFloor();
-    cw_drawMiniMap();
-  }
-
-  cw_nextGeneration();
-  camera_x = camera_y = 0;
-  cw_setCameraTarget(-1);
+    cw_nextGeneration();
+    camera_x = camera_y = 0;
+    cw_setCameraTarget(-1);
 }
 
 function cw_startSimulation() {
@@ -88,8 +87,7 @@ function cw_resetWorld() {
   for (b = world.m_bodyList; b; b = b.m_next) {
     world.DestroyBody(b);
   }
-  floorseed = model.seedString();
-  Math.seedrandom(floorseed);
+  Math.seedrandom(model.seedString());
   cw_createFloor();
   cw_drawMiniMap();
   Math.seedrandom();
@@ -108,11 +106,12 @@ function cw_confirmResetWorld() {
 // initial stuff, only called once (hopefully)
 function cw_init() {
   curGenerationSize(generationSize());
-  floorseed = model.seedString() || Math.seedrandom();
   world = new b2World(gravity, doSleep);
-  cw_createFloor();
+  cw_createFloor(model.seedString() || Math.seedrandom());
   cw_drawMiniMap();
-  cw_nextGeneration();
+
+  cw_newRound();
+
   cw_runningInterval = setInterval(simulationStep, Math.round(1000/box2dfps));
   cw_drawInterval    = setInterval(cw_drawScreen,  Math.round(1000/screenfps));
 }

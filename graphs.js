@@ -1,6 +1,5 @@
 (function () {
 
-var cw_topScores;
 var cw_graphTop;
 var cw_graphElite;
 var cw_graphAverage;
@@ -28,7 +27,6 @@ function cw_average(cars) {
 
 window.resetGraph = resetGraph;
 function resetGraph() {
-    cw_topScores = [];
     cw_graphTop = [];
     cw_graphElite = [];
     cw_graphAverage = [];
@@ -42,7 +40,6 @@ function avgArr(arr) {
 }
 function getMaxScore() {
     return Math.max(
-        maxArr(cw_topScores),
         maxArr(cw_graphTop),
         maxArr(cw_graphElite),
         maxArr(cw_graphAverage)
@@ -67,15 +64,14 @@ window.plot_graphs = plot_graphs;
 function plot_graphs() {
     cw_storeGraphScores();
     cw_clearGraphics();
-    cw_listTopScores();
 
     var maxY = getMaxScore();
     var yScale = graphcanvas.height / maxY;
     var xScale = 20;
 
-    plotLineData(0, maxY, cw_graphTop.map(function (x, index) { return { x: index + 1, y: maxY - x }; }), xScale, yScale, "green");
-    plotLineData(0, maxY, cw_graphElite.map(function (x, index) { return { x: index + 1, y: maxY - x }; }), xScale, yScale, "blue");
-    plotLineData(0, maxY, cw_graphAverage.map(function (x, index) { return { x: index + 1, y: maxY - x }; }), xScale, yScale, "red");
+    plotLineData(0, maxY, cw_graphTop.map(function (x, index) { return { x: index, y: maxY - x }; }), xScale, yScale, "green");
+    plotLineData(0, maxY, cw_graphElite.map(function (x, index) { return { x: index, y: maxY - x }; }), xScale, yScale, "blue");
+    plotLineData(0, maxY, cw_graphAverage.map(function (x, index) { return { x: index, y: maxY - x }; }), xScale, yScale, "red");
 
     graphctx.font = "10px Verdana";
     graphctx.fillStyle = "green";
@@ -120,13 +116,5 @@ function plot_graphs() {
 }
 function cw_clearGraphics() {
     graphcanvas.width = graphcanvas.width;
-}
-function cw_listTopScores() {
-  var ts = document.getElementById("topscores");
-  ts.innerHTML = "Top Scores:<br />";
-  cw_topScores.sort(function(a,b) {if(a.v > b.v) {return -1} else {return 1}});
-  for(var k = 0; k < Math.min(10,cw_topScores.length); k++) {
-    document.getElementById("topscores").innerHTML += "#"+(k+1)+": "+Math.round(cw_topScores[k].v*100)/100+" d:"+Math.round(cw_topScores[k].x*100)/100+" h:"+Math.round(cw_topScores[k].y2*100)/100+"/"+Math.round(cw_topScores[k].y*100)/100+"m (gen "+cw_topScores[k].i+")<br />";
-  }
 }
 })();

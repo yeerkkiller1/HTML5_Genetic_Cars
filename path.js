@@ -16,7 +16,7 @@ var fogdistance = 0;
 var mipmapfogdistance = document.getElementById("minimapfog").style;
 
 window.cw_createFloor = cw_createFloor;
-function cw_createFloor() {
+function cw_createFloor(floorseed) {
   var last_tile = null;
   var tile_position = new b2Vec2(-5,0);
   cw_floorTiles = new Array();
